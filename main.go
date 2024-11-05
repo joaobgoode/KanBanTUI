@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	tea "github.com/charmbracelet/bubbletea"
 )
@@ -59,7 +60,13 @@ func main() {
 		fmt.Println("Project name must be one word")
 		os.Exit(1)
 	}
-	err := initDatabase("./projects/tasks.db")
+	ex, err := os.Executable()
+	if err != nil {
+		panic(err)
+	}
+	exPath := filepath.Dir(ex)
+	dbPath := filepath.Join(exPath, "projects", "tasks.db")
+	err = initDatabase(dbPath)
 	if err != nil {
 		panic(err)
 	}
