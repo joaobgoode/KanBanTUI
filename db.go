@@ -94,3 +94,13 @@ func deleteTask(t *Task) {
 		panic(err)
 	}
 }
+
+func editTask(t *Task, old *Task) {
+	_, err := db.ExecContext(
+		context.Background(),
+		`UPDATE tasks SET title=?, description=? WHERE id=?;`, t.title, t.description, old.id,
+	)
+	if err != nil {
+		panic(err)
+	}
+}

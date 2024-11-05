@@ -1,8 +1,6 @@
 package main
 
 import (
-	"strings"
-
 	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textarea"
@@ -42,7 +40,6 @@ func (f Form) CreateTask() Task {
 		description: f.description.Value(),
 		project:     project,
 	}
-	addTask(&t)
 	return t
 }
 
@@ -67,9 +64,6 @@ func (f Form) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return f, textarea.Blink
 			}
 			// Return the completed form as a message.
-			if strings.TrimSpace(f.title.Value()) != "\n" {
-				return board.Update(nil)
-			}
 			return board.Update(f)
 		}
 	}
