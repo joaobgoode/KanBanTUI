@@ -56,7 +56,7 @@ func main() {
 		fmt.Println("Project name must be one word")
 		os.Exit(1)
 	}
-	err := initDatabase("./project/tasks.db")
+	err := initDatabase("./projects/tasks.db")
 	if err != nil {
 		panic(err)
 	}
