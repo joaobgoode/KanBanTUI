@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"fmt"
 
 	_ "modernc.org/sqlite"
 )
@@ -103,4 +104,31 @@ func editTask(t *Task, old *Task) {
 	if err != nil {
 		panic(err)
 	}
+}
+
+func getProjects() ([]projectItem, error) {
+	rows, err := db.QueryContext(
+		context.Background(),
+		`
+	SELECT project, COUNT(*) AS project_count
+	FROM tasks
+	GROUP BY project;
+	`,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	projects := []projectItem{}
+	for rows.Next() {
+		var title string
+		var count int
+		err := rows.Scan(&title, &count)
+		if err != nil {
+			return nil, err
+		}
+		description := fmt.Sprintf("%d tasks", count)
+		projects = append(projects, projectItem{title, description})
+	}
+	return projects, nil
 }

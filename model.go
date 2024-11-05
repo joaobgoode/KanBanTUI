@@ -56,6 +56,10 @@ func (m *Board) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.cols[m.focused].Blur()
 			m.focused = m.focused.getNext()
 			m.cols[m.focused].Focus()
+		case key.Matches(msg, keys.Projects):
+			return projects.Update(msg)
+			// project = "poo"
+			// m.resetLists()
 		}
 	}
 	res, cmd := m.cols[m.focused].Update(msg)

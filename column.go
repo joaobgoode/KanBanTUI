@@ -50,6 +50,7 @@ func (c column) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		c.setSize(msg.Width, msg.Height)
+		projects.SetSize(msg.Width, msg.Height)
 		c.list.SetSize(msg.Width/margin, msg.Height-8)
 	case tea.KeyMsg:
 		switch {
