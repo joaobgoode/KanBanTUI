@@ -36,3 +36,35 @@ func (b *Board) initLists() {
 		b.cols[done].list.InsertItem(len(b.cols[done].list.Items())-1, t)
 	}
 }
+
+func (b *Board) resetLists() {
+	for col := range b.cols {
+		for i := 0; i < len(b.cols[col].list.Items()); i++ {
+			b.cols[col].list.RemoveItem(i)
+		}
+	}
+
+	todos, err := taskByStatus(todo)
+	if err != nil {
+		panic(err)
+	}
+	for _, t := range todos {
+		b.cols[todo].list.InsertItem(len(b.cols[todo].list.Items())-1, t)
+	}
+
+	inprogresses, err := taskByStatus(inProgress)
+	if err != nil {
+		panic(err)
+	}
+	for _, t := range inprogresses {
+		b.cols[inProgress].list.InsertItem(len(b.cols[inProgress].list.Items())-1, t)
+	}
+
+	dones, err := taskByStatus(done)
+	if err != nil {
+		panic(err)
+	}
+	for _, t := range dones {
+		b.cols[done].list.InsertItem(len(b.cols[done].list.Items())-1, t)
+	}
+}

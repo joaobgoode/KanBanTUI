@@ -10,11 +10,12 @@ import (
 const APPEND = -1
 
 type column struct {
-	focus  bool
-	status status
-	list   list.Model
-	height int
-	width  int
+	focus     bool
+	status    status
+	list      list.Model
+	height    int
+	width     int
+	filtering bool
 }
 
 func (c *column) Focus() {
@@ -50,34 +51,43 @@ func (c column) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		c.setSize(msg.Width, msg.Height)
+		projects.SetSize(msg.Width, msg.Height)
 		c.list.SetSize(msg.Width/margin, msg.Height-8)
 	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, keys.Edit):
-			if len(c.list.VisibleItems()) != 0 {
-				task := c.list.SelectedItem().(Task)
-				f := NewForm(task.title, task.description)
-				f.index = c.list.Index()
+		if !c.filtering {
+			switch {
+			case key.Matches(msg, keys.Edit):
+				if len(c.list.VisibleItems()) != 0 {
+					task := c.list.SelectedItem().(Task)
+					f := NewForm(task.title, task.description)
+					f.index = c.list.Index()
+					f.col = c
+					return f.Update(nil)
+				}
+			case key.Matches(msg, keys.New):
+				f := newDefaultForm()
+				f.index = APPEND
 				f.col = c
 				return f.Update(nil)
+			case key.Matches(msg, keys.Delete):
+				return c, c.DeleteCurrent()
+			case key.Matches(msg, keys.Enter):
+				return c, c.MoveToNext()
+			case key.Matches(msg, keys.Prev):
+				return c, c.MoveToPrev()
+			case key.Matches(msg, keys.Todo):
+				return c, c.MoveToTodo()
+			case key.Matches(msg, keys.InProgress):
+				return c, c.MoveToInProgress()
+			case key.Matches(msg, keys.Done):
+				return c, c.MoveToDone()
 			}
-		case key.Matches(msg, keys.New):
-			f := newDefaultForm()
-			f.index = APPEND
-			f.col = c
-			return f.Update(nil)
-		case key.Matches(msg, keys.Delete):
-			return c, c.DeleteCurrent()
-		case key.Matches(msg, keys.Enter):
-			return c, c.MoveToNext()
-		case key.Matches(msg, keys.Prev):
-			return c, c.MoveToPrev()
-		case key.Matches(msg, keys.Todo):
-			return c, c.MoveToTodo()
-		case key.Matches(msg, keys.InProgress):
-			return c, c.MoveToInProgress()
-		case key.Matches(msg, keys.Done):
-			return c, c.MoveToDone()
+		}
+		switch {
+		case key.Matches(msg, keys.Filtering):
+			c.filtering = true
+		case key.Matches(msg, keys.Back), key.Matches(msg, keys.Enter):
+			c.filtering = false
 		}
 	}
 	c.list, cmd = c.list.Update(msg)

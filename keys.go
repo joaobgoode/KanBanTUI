@@ -34,6 +34,8 @@ type keyMap struct {
 	InProgress key.Binding
 	Done       key.Binding
 	Cancel     key.Binding
+	Projects   key.Binding
+	Filtering  key.Binding
 }
 
 var keys = keyMap{
@@ -46,8 +48,8 @@ var keys = keyMap{
 		key.WithHelp("e", "edit"),
 	),
 	Delete: key.NewBinding(
-		key.WithKeys("d"),
-		key.WithHelp("d", "delete"),
+		key.WithKeys("delete"),
+		key.WithHelp("delete", "delete"),
 	),
 	Up: key.NewBinding(
 		key.WithKeys("up", "k"),
@@ -96,5 +98,13 @@ var keys = keyMap{
 	Done: key.NewBinding(
 		key.WithKeys("3"),
 		key.WithHelp("3", "Done"),
+	),
+	Projects: key.NewBinding(
+		key.WithKeys("p"),
+		key.WithHelp("p", "Projects"),
+	),
+	Filtering: key.NewBinding(
+		key.WithKeys("/"),
+		key.WithHelp("/", "Filter"),
 	),
 }

@@ -38,7 +38,10 @@ func (s status) getPrev() status {
 
 const margin = 4
 
-var board *Board
+var (
+	board    *Board
+	projects *projectList
+)
 
 const (
 	todo status = iota
@@ -70,6 +73,8 @@ func main() {
 
 	board = NewBoard()
 	board.initLists()
+	projects = NewProjectList()
+	projects.LoadProjects()
 	p := tea.NewProgram(board)
 	if _, err := p.Run(); err != nil {
 		fmt.Println(err)
