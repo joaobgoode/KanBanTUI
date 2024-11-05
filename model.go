@@ -39,6 +39,9 @@ func (m *Board) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			cmds = append(cmds, cmd)
 		}
 		m.loaded = true
+		if project == "" {
+			return projects.Update(nil)
+		}
 		return m, tea.Batch(cmds...)
 	case Form:
 		return m, m.cols[m.focused].Set(msg.index, msg.CreateTask())

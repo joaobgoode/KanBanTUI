@@ -132,3 +132,15 @@ func getProjects() ([]projectItem, error) {
 	}
 	return projects, nil
 }
+
+func checkProject(project string) bool {
+	rows, err := db.QueryContext(
+		context.Background(),
+		`SELECT * FROM tasks WHERE project=?;`, project,
+	)
+	if err != nil {
+		panic(err)
+	}
+	defer rows.Close()
+	return rows.Next()
+}

@@ -82,6 +82,9 @@ func (p *projectList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		if !p.filtering {
 			switch {
+			case key.Matches(msg, keys.New):
+				pf := NewProjectForm("project name")
+				return pf.Update(nil)
 			case key.Matches(msg, keys.Quit):
 				return board.Update(nil)
 			}
