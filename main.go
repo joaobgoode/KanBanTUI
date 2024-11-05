@@ -49,7 +49,7 @@ const (
 	done
 )
 
-var project = "default"
+var project = ""
 
 func main() {
 	args := os.Args
@@ -75,7 +75,7 @@ func main() {
 	board.initLists()
 	projects = NewProjectList()
 	projects.LoadProjects()
-	p := tea.NewProgram(board)
+	p := tea.NewProgram(board, tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
