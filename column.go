@@ -121,6 +121,7 @@ func (c *column) Set(i int, t Task) tea.Cmd {
 		return c.list.SetItem(i, t)
 	}
 	addTask(&t)
+	projects.ResetProjects()
 	return c.list.InsertItem(APPEND, t)
 }
 

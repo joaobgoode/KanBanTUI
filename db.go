@@ -127,7 +127,10 @@ func getProjects() ([]projectItem, error) {
 		if err != nil {
 			return nil, err
 		}
-		description := fmt.Sprintf("%d tasks", count)
+		description := fmt.Sprintf("%d task", count)
+		if count > 1 {
+			description += "s"
+		}
 		projects = append(projects, projectItem{title, description})
 	}
 	return projects, nil

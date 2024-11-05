@@ -65,6 +65,10 @@ func NewProjectList() *projectList {
 	return &projectList{list: emptyList, filtering: false}
 }
 
+func (p *projectList) RemoveAllItems() {
+	p.list.SetItems([]list.Item{})
+}
+
 func (p *projectList) LoadProjects() {
 	projects, err := getProjects()
 	if err != nil {
@@ -74,6 +78,11 @@ func (p *projectList) LoadProjects() {
 		p.list.InsertItem(len(p.list.Items())-1, project)
 	}
 	p.list.Title = "Projects"
+}
+
+func (p *projectList) ResetProjects() {
+	p.RemoveAllItems()
+	p.LoadProjects()
 }
 
 func (p *projectList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
