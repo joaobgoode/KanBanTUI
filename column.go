@@ -106,8 +106,11 @@ func (c *column) DeleteCurrent() tea.Cmd {
 
 func (c *column) Set(i int, t Task) tea.Cmd {
 	if i != APPEND {
+		old := c.list.Items()[i].(Task)
+		editTask(&t, &old)
 		return c.list.SetItem(i, t)
 	}
+	addTask(&t)
 	return c.list.InsertItem(APPEND, t)
 }
 
