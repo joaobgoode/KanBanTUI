@@ -26,10 +26,11 @@ func (p projectItem) Description() string {
 }
 
 type projectList struct {
-	list   list.Model
-	height int
-	width  int
-	loaded bool
+	list      list.Model
+	height    int
+	width     int
+	loaded    bool
+	filtering bool
 }
 
 func (p *projectList) SetSize(width, height int) {
@@ -61,7 +62,7 @@ func NewProjectList() *projectList {
 	delegate.Styles.SelectedTitle = lipgloss.NewStyle().Foreground(lipgloss.Color("#17fc03"))
 	delegate.Styles.SelectedDesc = lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
 	emptyList := list.New([]list.Item{}, delegate, 0, 0)
-	return &projectList{list: emptyList}
+	return &projectList{list: emptyList, filtering: false}
 }
 
 func (p *projectList) LoadProjects() {
@@ -79,10 +80,19 @@ func (p *projectList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
+		if !p.filtering {
+			switch {
+			case key.Matches(msg, keys.Quit):
+				return board.Update(nil)
+			}
+		}
 		switch {
-		case key.Matches(msg, keys.Quit):
-			return board.Update(nil)
+		case key.Matches(msg, keys.Filtering):
+			p.filtering = true
+		case key.Matches(msg, keys.Back):
+			p.filtering = false
 		case key.Matches(msg, keys.Enter):
+			p.filtering = false
 			selected := p.list.SelectedItem()
 			if selected == nil {
 				return p.Update(nil)
