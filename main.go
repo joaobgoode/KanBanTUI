@@ -65,10 +65,10 @@ func main() {
 		panic(err)
 	}
 	exPath := filepath.Dir(ex)
-	dbPath := filepath.Join(exPath, "projects", "tasks.db")
+	dbPath := filepath.Join(exPath, "tasks.db")
 	err = initDatabase(dbPath)
 	if err != nil {
-		panic(err)
+		panic(exPath)
 	}
 	defer db.Close()
 	f, err := tea.LogToFile("debug.log", "debug")
