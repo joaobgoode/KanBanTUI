@@ -65,7 +65,7 @@ func main() {
 		panic(err)
 	}
 	exPath := filepath.Dir(ex)
-	dbPath := filepath.Join(exPath, "projects", "tasks.db")
+	dbPath := filepath.Join(exPath, "tasks.db")
 	err = initDatabase(dbPath)
 	if err != nil {
 		panic(err)

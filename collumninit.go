@@ -39,7 +39,7 @@ func (b *Board) initLists() {
 
 func (b *Board) resetLists() {
 	for col := range b.cols {
-		for i := 0; i < len(b.cols[col].list.Items()); i++ {
+		for i := len(b.cols[col].list.Items()) - 1; i >= 0; i-- {
 			b.cols[col].list.RemoveItem(i)
 		}
 	}

@@ -95,6 +95,9 @@ func (p *projectList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				pf := NewProjectForm("project name")
 				return pf.Update(nil)
 			case key.Matches(msg, keys.Quit):
+				if project == "" {
+					return p, tea.Quit
+				}
 				return board.Update(nil)
 			}
 		}

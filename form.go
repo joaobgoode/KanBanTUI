@@ -18,10 +18,10 @@ type Form struct {
 }
 
 func newDefaultForm() *Form {
-	return NewForm("task name", "")
+	return NewForm("task name", "", false)
 }
 
-func NewForm(title, description string) *Form {
+func NewForm(title, description string, edit bool) *Form {
 	form := Form{
 		help:        help.New(),
 		title:       textinput.New(),
@@ -30,6 +30,10 @@ func NewForm(title, description string) *Form {
 	form.title.Placeholder = title
 	form.description.Placeholder = description
 	form.title.Focus()
+	if edit {
+		form.title.SetValue(title)
+		form.description.SetValue(description)
+	}
 	return &form
 }
 

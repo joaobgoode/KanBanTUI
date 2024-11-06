@@ -35,7 +35,19 @@ func newColumn(status status) column {
 	if status == todo {
 		focus = true
 	}
-	defaultList := list.New([]list.Item{}, list.NewDefaultDelegate(), 0, 0)
+	delegate := list.NewDefaultDelegate()
+	delegate.Styles.SelectedTitle = lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder(), false, false, false, true).
+		BorderForeground(lipgloss.AdaptiveColor{Light: "#00ffd7", Dark: "#00ffff"}).
+		Foreground(lipgloss.AdaptiveColor{Light: "#00ffd7", Dark: "#00ffff"}).
+		Padding(0, 0, 0, 1)
+	delegate.Styles.SelectedDesc = lipgloss.NewStyle().
+		Border(lipgloss.NormalBorder(), false, false, false, true).
+		BorderForeground(lipgloss.AdaptiveColor{Light: "#00ffd7", Dark: "#00ffff"}).
+		Foreground(lipgloss.AdaptiveColor{Light: "#00ffd7", Dark: "#5fafd7"}).
+		Padding(0, 0, 0, 1)
+
+	defaultList := list.New([]list.Item{}, delegate, 0, 0)
 	defaultList.SetShowHelp(false)
 	return column{focus: focus, status: status, list: defaultList}
 }
@@ -59,7 +71,7 @@ func (c column) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, keys.Edit):
 				if len(c.list.VisibleItems()) != 0 {
 					task := c.list.SelectedItem().(Task)
-					f := NewForm(task.title, task.description)
+					f := NewForm(task.title, task.description, true)
 					f.index = c.list.Index()
 					f.col = c
 					return f.Update(nil)
