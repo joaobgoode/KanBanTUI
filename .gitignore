@@ -1,3 +1,4 @@
 *.db
 debug.log
 *.exe
+*.pid
