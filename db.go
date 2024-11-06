@@ -147,3 +147,13 @@ func checkProject(project string) bool {
 	defer rows.Close()
 	return rows.Next()
 }
+
+func changeProject(old string, new string) {
+	_, err := db.ExecContext(
+		context.Background(),
+		`UPDATE tasks SET project=? WHERE project=?;`, new, old,
+	)
+	if err != nil {
+		panic(err)
+	}
+}

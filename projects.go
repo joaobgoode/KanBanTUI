@@ -74,8 +74,8 @@ func (p *projectList) LoadProjects() {
 	if err != nil {
 		panic(err)
 	}
-	for _, project := range projects {
-		p.list.InsertItem(len(p.list.Items())-1, project)
+	for _, pi := range projects {
+		p.list.InsertItem(len(p.list.Items())-1, pi)
 	}
 	p.list.Title = "Projects"
 }
@@ -92,8 +92,14 @@ func (p *projectList) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if !p.filtering {
 			switch {
 			case key.Matches(msg, keys.New):
-				pf := NewProjectForm("project name")
+				pf := NewProjectForm("project name", false)
 				return pf.Update(nil)
+			case key.Matches(msg, keys.Edit):
+				if len(p.list.VisibleItems()) != 0 {
+					pi := p.list.SelectedItem().(projectItem)
+					pf := NewProjectForm(pi.title, true)
+					return pf.Update(nil)
+				}
 			case key.Matches(msg, keys.Quit):
 				if project == "" {
 					return p, tea.Quit
