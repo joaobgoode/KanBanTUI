@@ -83,9 +83,11 @@ func (m *Board) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // Changing to pointer receiver to get back to this model after adding a new task via the form... Otherwise I would need to pass this model along to the form and it becomes highly coupled to the other models.
 func (m *Board) View() string {
+	// clears the screen before rendering
 	if m.quitting {
 		return ""
 	}
+	// if the board is not loaded, return loading
 	if !m.loaded {
 		return "loading..."
 	}

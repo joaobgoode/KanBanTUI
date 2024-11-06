@@ -31,6 +31,7 @@ func NewForm(title, description string, edit bool) *Form {
 	form.description.Placeholder = description
 	form.title.Focus()
 	if edit {
+		// if eddit is true, preset the title and description
 		form.title.SetValue(title)
 		form.description.SetValue(description)
 	}
@@ -60,6 +61,7 @@ func (f Form) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch {
 		case key.Matches(msg, keys.Back):
+			// if the back key is pressed, return to the board
 			return board.Update(nil)
 		case key.Matches(msg, keys.Enter):
 			if f.title.Focused() {

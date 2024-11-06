@@ -2,69 +2,61 @@ package main
 
 // Provides the mock data to fill the kanban board
 
-func (b *Board) initLists() {
+func (b *Board) initColums() {
 	b.cols = []column{
 		newColumn(todo),
 		newColumn(inProgress),
 		newColumn(done),
 	}
-	// Init To Do
+	b.cols[todo].list.Title = "To Do"
+	b.cols[inProgress].list.Title = "In Progress"
+	b.cols[done].list.Title = "Done"
+}
+
+func (b *Board) clearsList() {
+	for col := range b.cols {
+		for i := len(b.cols[col].list.Items()) - 1; i >= 0; i-- {
+			b.cols[col].list.RemoveItem(i)
+		}
+	}
+}
+
+func (b *Board) fillLists() {
+	// get todos from the db
 	todos, err := taskByStatus(todo)
 	if err != nil {
 		panic(err)
 	}
-	b.cols[todo].list.Title = "To Do"
+	// fill the list with the todos
 	for _, t := range todos {
 		b.cols[todo].list.InsertItem(len(b.cols[todo].list.Items())-1, t)
 	}
-	// Init in progress
+	// get in progress tasks from the db
 	inprogresses, err := taskByStatus(inProgress)
 	if err != nil {
 		panic(err)
 	}
-	b.cols[inProgress].list.Title = "In Progress"
+	// fill the list with the in progress tasks
 	for _, t := range inprogresses {
 		b.cols[inProgress].list.InsertItem(len(b.cols[inProgress].list.Items())-1, t)
 	}
-	// Init done
+	// get done tasks from the db
 	dones, err := taskByStatus(done)
 	if err != nil {
 		panic(err)
 	}
-	b.cols[done].list.Title = "Done"
+	// fill the list with the done tasks
 	for _, t := range dones {
 		b.cols[done].list.InsertItem(len(b.cols[done].list.Items())-1, t)
 	}
 }
 
 func (b *Board) resetLists() {
-	for col := range b.cols {
-		for i := len(b.cols[col].list.Items()) - 1; i >= 0; i-- {
-			b.cols[col].list.RemoveItem(i)
-		}
-	}
+	b.clearsList()
+	b.fillLists()
+}
 
-	todos, err := taskByStatus(todo)
-	if err != nil {
-		panic(err)
-	}
-	for _, t := range todos {
-		b.cols[todo].list.InsertItem(len(b.cols[todo].list.Items())-1, t)
-	}
-
-	inprogresses, err := taskByStatus(inProgress)
-	if err != nil {
-		panic(err)
-	}
-	for _, t := range inprogresses {
-		b.cols[inProgress].list.InsertItem(len(b.cols[inProgress].list.Items())-1, t)
-	}
-
-	dones, err := taskByStatus(done)
-	if err != nil {
-		panic(err)
-	}
-	for _, t := range dones {
-		b.cols[done].list.InsertItem(len(b.cols[done].list.Items())-1, t)
-	}
+func (b *Board) initLists() {
+	b.initColums()
+	b.fillLists()
 }

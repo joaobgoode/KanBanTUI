@@ -14,14 +14,6 @@ func NewTask(status status, title, description string) Task {
 	return t
 }
 
-func (t *Task) Next() {
-	if t.status == done {
-		t.status = todo
-	} else {
-		t.status++
-	}
-}
-
 // implement the list.Item interface
 func (t Task) FilterValue() string {
 	return t.title

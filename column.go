@@ -60,15 +60,20 @@ func (c column) Init() tea.Cmd {
 // Update handles all the I/O for columns.
 func (c column) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+
 	switch msg := msg.(type) {
+	// Capture Window Size, resize the column and the project list accordingly
 	case tea.WindowSizeMsg:
 		c.setSize(msg.Width, msg.Height)
 		projects.SetSize(msg.Width, msg.Height)
 		c.list.SetSize(msg.Width/margin, msg.Height-8)
+		// Capture Key
 	case tea.KeyMsg:
 		if !c.filtering {
+			// If its filtering, that allows you to type the keys that are shortcuts
 			switch {
 			case key.Matches(msg, keys.Edit):
+				// Handles editting task
 				if len(c.list.VisibleItems()) != 0 {
 					task := c.list.SelectedItem().(Task)
 					f := NewForm(task.title, task.description, true)
@@ -77,25 +82,33 @@ func (c column) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return f.Update(nil)
 				}
 			case key.Matches(msg, keys.New):
+				// Handles new task
 				f := newDefaultForm()
 				f.index = APPEND
 				f.col = c
 				return f.Update(nil)
 			case key.Matches(msg, keys.Delete):
+				// Deletes the task
 				return c, c.DeleteCurrent()
 			case key.Matches(msg, keys.Enter):
-				return c, c.MoveToNext()
+				// Moves the task to the next column
+				return c, c.Move(c.status.getNext())
 			case key.Matches(msg, keys.Prev):
-				return c, c.MoveToPrev()
+				// Moves the task to the previous column
+				return c, c.Move(c.status.getPrev())
 			case key.Matches(msg, keys.Todo):
-				return c, c.MoveToTodo()
+				// Moves the task to the todo column
+				return c, c.Move(todo)
 			case key.Matches(msg, keys.InProgress):
-				return c, c.MoveToInProgress()
+				// Moves the task to the in progress column
+				return c, c.Move(inProgress)
 			case key.Matches(msg, keys.Done):
-				return c, c.MoveToDone()
+				// Moves the task to the done column
+				return c, c.Move(done)
 			}
 		}
 		switch {
+		// toggle filtering
 		case key.Matches(msg, keys.Filtering):
 			c.filtering = true
 		case key.Matches(msg, keys.Back), key.Matches(msg, keys.Enter):
@@ -110,13 +123,24 @@ func (c column) View() string {
 	return c.getStyle().Render(c.list.View())
 }
 
+func (c *column) captureItem() (Task, bool) {
+	// get the selected item
+	selectedItem := c.list.SelectedItem()
+	if selectedItem == nil {
+		// if there is no selected item, return false
+		return Task{}, false
+	}
+	// return the selected item as a Task
+	return selectedItem.(Task), true
+}
+
 func (c *column) DeleteCurrent() tea.Cmd {
 	if len(c.list.VisibleItems()) > 0 {
-		selectedItem := c.list.SelectedItem()
-		if selectedItem == nil {
+		selectedTask, ok := c.captureItem()
+		if !ok {
 			return nil
 		}
-		selectedTask := selectedItem.(Task)
+		// delete the task from the database
 		deleteTask(&selectedTask)
 		c.list.RemoveItem(c.list.Index())
 	}
@@ -128,10 +152,13 @@ func (c *column) DeleteCurrent() tea.Cmd {
 
 func (c *column) Set(i int, t Task) tea.Cmd {
 	if i != APPEND {
+		// if the index is not -1, then we are editing
 		old := c.list.Items()[i].(Task)
+		// edit the task in the database
 		editTask(&t, &old)
 		return c.list.SetItem(i, t)
 	}
+	// add the task to the database
 	addTask(&t)
 	projects.ResetProjects()
 	return c.list.InsertItem(APPEND, t)
@@ -143,6 +170,7 @@ func (c *column) setSize(width, height int) {
 
 func (c *column) getStyle() lipgloss.Style {
 	if c.Focused() {
+		// if the column is focused, itll have a different style
 		return lipgloss.NewStyle().
 			Padding(1, 2).
 			Border(lipgloss.RoundedBorder()).
@@ -150,6 +178,7 @@ func (c *column) getStyle() lipgloss.Style {
 			Height(c.height).
 			Width(c.width)
 	}
+	// if the column is not focused, itll be dimmer
 	return lipgloss.NewStyle().
 		Padding(1, 2).
 		Border(lipgloss.RoundedBorder()).
@@ -162,99 +191,23 @@ type moveMsg struct {
 	Task
 }
 
-func (c *column) MoveToPrev() tea.Cmd {
-	selectedItem := c.list.SelectedItem()
-	if selectedItem == nil {
+func (c *column) Move(s status) tea.Cmd {
+	// get the selected task
+	selectedTask, ok := c.captureItem()
+	if !ok {
 		return nil
 	}
-	selectedTask := selectedItem.(Task)
-	if selectedTask.status == todo {
+	// get the current status of the task
+	currentStatus := selectedTask.status
+	// if the current status is the same as the new status, do nothing
+	if currentStatus == s {
 		return nil
 	}
+	// remove the task from the current, and add it to the new status
 	c.list.RemoveItem(c.list.Index())
-	selectedTask.status = selectedTask.status.getPrev()
+	selectedTask.status = s
 	updateTaskStatus(&selectedTask)
-	board.cols[selectedTask.status].list.
-		InsertItem(
-			len(c.list.Items())-1,
-			list.Item(selectedTask),
-		)
-	return nil
-}
-
-func (c *column) MoveToNext() tea.Cmd {
-	selectedItem := c.list.SelectedItem()
-	if selectedItem == nil {
-		return nil
-	}
-	selectedTask := selectedItem.(Task)
-	if selectedTask.status == done {
-		return nil
-	}
-	c.list.RemoveItem(c.list.Index())
-	selectedTask.status = selectedTask.status.getNext()
-	updateTaskStatus(&selectedTask)
-	board.cols[selectedTask.status].list.
-		InsertItem(
-			len(c.list.Items())-1,
-			list.Item(selectedTask),
-		)
-	return nil
-}
-
-func (c *column) MoveToTodo() tea.Cmd {
-	selectedItem := c.list.SelectedItem()
-	if selectedItem == nil {
-		return nil
-	}
-	selectedTask := selectedItem.(Task)
-	if selectedTask.status == todo {
-		return nil
-	}
-	c.list.RemoveItem(c.list.Index())
-	selectedTask.status = todo
-	updateTaskStatus(&selectedTask)
-	board.cols[todo].list.
-		InsertItem(
-			len(c.list.Items())-1,
-			list.Item(selectedTask),
-		)
-	return nil
-}
-
-func (c *column) MoveToInProgress() tea.Cmd {
-	selectedItem := c.list.SelectedItem()
-	if selectedItem == nil {
-		return nil
-	}
-	selectedTask := selectedItem.(Task)
-	if selectedTask.status == inProgress {
-		return nil
-	}
-	c.list.RemoveItem(c.list.Index())
-	selectedTask.status = inProgress
-	updateTaskStatus(&selectedTask)
-	board.cols[inProgress].list.
-		InsertItem(
-			len(c.list.Items())-1,
-			list.Item(selectedTask),
-		)
-	return nil
-}
-
-func (c *column) MoveToDone() tea.Cmd {
-	selectedItem := c.list.SelectedItem()
-	if selectedItem == nil {
-		return nil
-	}
-	selectedTask := selectedItem.(Task)
-	if selectedTask.status == done {
-		return nil
-	}
-	c.list.RemoveItem(c.list.Index())
-	selectedTask.status = done
-	updateTaskStatus(&selectedTask)
-	board.cols[done].list.
+	board.cols[s].list.
 		InsertItem(
 			len(c.list.Items())-1,
 			list.Item(selectedTask),

@@ -26,15 +26,17 @@ func FromInt(i int) status {
 }
 
 func (s status) getNext() status {
+	// If the status is done, cannot go further
 	if s == done {
-		return todo
+		return done
 	}
 	return s + 1
 }
 
 func (s status) getPrev() status {
+	// If the status is todo, cannot go backards
 	if s == todo {
-		return done
+		return todo
 	}
 	return s - 1
 }
@@ -55,17 +57,24 @@ const (
 var project = ""
 
 func main() {
+	// handles logging
 	f, err := tea.LogToFile("debug.log", "debug")
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
 	defer f.Close()
+
+	// get executable path
 	ex, err := os.Executable()
 	if err != nil {
 		panic(err)
 	}
 	exPath := filepath.Dir(ex)
+
+	// check if another instance is running, if so exit
+	// otherwise could lead to funky behavior due to
+	// detabase being out of sync
 	pidFile := filepath.Join(exPath, "tasks.pid")
 	if _, err := os.Stat(pidFile); err == nil {
 		fmt.Println("Another instance is already running")
@@ -77,13 +86,18 @@ func main() {
 		log.Fatalf("Failed to create PID file: %v", err)
 	}
 	defer os.Remove(pidFile)
+
+	// handles starting the program
 	args := os.Args
 	if len(args) == 2 {
+		// if there is args, get the project with the args name
 		project = args[1]
 	} else if len(args) > 2 {
+		// cannot have more than one word for project name
 		fmt.Println("Project name must be one word")
 		os.Exit(1)
 	}
+	// start the db
 	dbPath := filepath.Join(exPath, "tasks.db")
 	err = initDatabase(dbPath)
 	if err != nil {
@@ -91,6 +105,7 @@ func main() {
 	}
 	defer db.Close()
 
+	// start the board and projects
 	board = NewBoard()
 	board.initLists()
 	projects = NewProjectList()
