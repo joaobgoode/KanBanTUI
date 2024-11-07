@@ -28,10 +28,12 @@ func NewForm(title, description string, edit bool) *Form {
 		description: textarea.New(),
 	}
 	form.title.Placeholder = title
+	form.title.CharLimit = 20
 	form.description.Placeholder = description
+	form.description.CharLimit = 50
 	form.title.Focus()
 	if edit {
-		// if eddit is true, preset the title and description
+		// if edit is true, preset the title and description
 		form.title.SetValue(title)
 		form.description.SetValue(description)
 	}

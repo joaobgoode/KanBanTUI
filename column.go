@@ -105,6 +105,12 @@ func (c column) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case key.Matches(msg, keys.Done):
 				// Moves the task to the done column
 				return c, c.Move(done)
+			case key.Matches(msg, keys.AddUrgency):
+				c.addUrgency()
+			case key.Matches(msg, keys.RemoveUrgency):
+				c.removeUrgency()
+			case key.Matches(msg, keys.Refresh):
+				board.resetLists()
 			}
 		}
 		switch {
@@ -213,4 +219,32 @@ func (c *column) Move(s status) tea.Cmd {
 			list.Item(selectedTask),
 		)
 	return nil
+}
+
+func (c *column) addUrgency() {
+	// get the selected task
+	selectedTask, ok := c.captureItem()
+	if !ok {
+		return
+	}
+	// add urgency to the task
+	selectedTask.AddUrgency()
+	// update the task in the database
+	changeUrgency(&selectedTask)
+	// update the task in the list
+	c.list.SetItem(c.list.Index(), selectedTask)
+}
+
+func (c *column) removeUrgency() {
+	// get the selected task
+	selectedTask, ok := c.captureItem()
+	if !ok {
+		return
+	}
+	// add urgency to the task
+	selectedTask.SubtractUrgency()
+	// update the task in the database
+	changeUrgency(&selectedTask)
+	// update the task in the list
+	c.list.SetItem(c.list.Index(), selectedTask)
 }

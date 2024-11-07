@@ -23,7 +23,8 @@ func initDatabase(dbPath string) error {
 			title TEXT NOT NULL, 
 			description TEXT, 
       project TEXT NOT NULL,
-			status REAL NOT NULL
+			status REAL NOT NULL,
+        urgency INTEGER
 		)`,
 	)
 	if err != nil {
@@ -36,7 +37,7 @@ func addTask(t *Task) {
 	s := int(t.status)
 	res, err := db.ExecContext(
 		context.Background(),
-		`INSERT INTO tasks (title, description, project, status) VALUES (?,?,?,?);`, t.title, t.description, project, s,
+		`INSERT INTO tasks (title, description, project, status, urgency) VALUES (?,?,?,?, ?);`, t.title, t.description, project, s, t.urgency,
 	)
 	if err != nil {
 		panic(err)
@@ -49,14 +50,14 @@ func addTask(t *Task) {
 	// rest of the function
 }
 
-func taskByStatus(status status) ([]Task, error) {
-	// this slice will contain all the albums retrieved
-
-	var tasks []Task
+func taskByStatus(status status) (TaskList, error) {
+	var tasks TaskList
 	value := int(status)
 	rows, err := db.QueryContext(
 		context.Background(),
-		`SELECT * FROM tasks WHERE status=? AND project=?;`, value, project,
+		`SELECT * FROM tasks
+        WHERE status=? AND project=?
+        ORDER BY urgency ASC, title DESC;`, value, project,
 	)
 	if err != nil {
 		return nil, err
@@ -66,7 +67,7 @@ func taskByStatus(status status) ([]Task, error) {
 	for rows.Next() {
 		var t Task
 		var s int
-		err := rows.Scan(&t.id, &t.title, &t.description, &t.project, &s)
+		err := rows.Scan(&t.id, &t.title, &t.description, &t.project, &s, &t.urgency)
 		if err != nil {
 			return nil, err
 		}
@@ -152,6 +153,16 @@ func changeProject(old string, new string) {
 	_, err := db.ExecContext(
 		context.Background(),
 		`UPDATE tasks SET project=? WHERE project=?;`, new, old,
+	)
+	if err != nil {
+		panic(err)
+	}
+}
+
+func changeUrgency(t *Task) {
+	_, err := db.ExecContext(
+		context.Background(),
+		`UPDATE tasks SET urgency=? WHERE id=?;`, t.urgency, t.id,
 	)
 	if err != nil {
 		panic(err)

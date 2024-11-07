@@ -18,24 +18,27 @@ func (k keyMap) FullHelp() [][]key.Binding {
 }
 
 type keyMap struct {
-	New        key.Binding
-	Edit       key.Binding
-	Delete     key.Binding
-	Up         key.Binding
-	Down       key.Binding
-	Right      key.Binding
-	Left       key.Binding
-	Enter      key.Binding
-	Prev       key.Binding
-	Help       key.Binding
-	Quit       key.Binding
-	Back       key.Binding
-	Todo       key.Binding
-	InProgress key.Binding
-	Done       key.Binding
-	Cancel     key.Binding
-	Projects   key.Binding
-	Filtering  key.Binding
+	New           key.Binding
+	Edit          key.Binding
+	Delete        key.Binding
+	Up            key.Binding
+	Down          key.Binding
+	Right         key.Binding
+	Left          key.Binding
+	Enter         key.Binding
+	Prev          key.Binding
+	Help          key.Binding
+	Quit          key.Binding
+	Back          key.Binding
+	Todo          key.Binding
+	InProgress    key.Binding
+	Done          key.Binding
+	Cancel        key.Binding
+	Projects      key.Binding
+	Filtering     key.Binding
+	AddUrgency    key.Binding
+	RemoveUrgency key.Binding
+	Refresh       key.Binding
 }
 
 var keys = keyMap{
@@ -106,5 +109,17 @@ var keys = keyMap{
 	Filtering: key.NewBinding(
 		key.WithKeys("/"),
 		key.WithHelp("/", "Filter"),
+	),
+	AddUrgency: key.NewBinding(
+		key.WithKeys("+"),
+		key.WithHelp("+", "Add Urgency"),
+	),
+	RemoveUrgency: key.NewBinding(
+		key.WithKeys("-"),
+		key.WithHelp("-", "Remove Urgency"),
+	),
+	Refresh: key.NewBinding(
+		key.WithKeys("r"),
+		key.WithHelp("r", "Refresh"),
 	),
 }

@@ -27,27 +27,30 @@ func (b *Board) fillLists() {
 	if err != nil {
 		panic(err)
 	}
+	// sort.Sort(todos)
 	// fill the list with the todos
 	for _, t := range todos {
-		b.cols[todo].list.InsertItem(len(b.cols[todo].list.Items())-1, t)
+		b.cols[todo].list.InsertItem(-1, t)
 	}
 	// get in progress tasks from the db
 	inprogresses, err := taskByStatus(inProgress)
 	if err != nil {
 		panic(err)
 	}
+	// sort.Sort(inprogresses)
 	// fill the list with the in progress tasks
 	for _, t := range inprogresses {
-		b.cols[inProgress].list.InsertItem(len(b.cols[inProgress].list.Items())-1, t)
+		b.cols[inProgress].list.InsertItem(-1, t)
 	}
 	// get done tasks from the db
 	dones, err := taskByStatus(done)
 	if err != nil {
 		panic(err)
 	}
+	// sort.Sort(dones)
 	// fill the list with the done tasks
 	for _, t := range dones {
-		b.cols[done].list.InsertItem(len(b.cols[done].list.Items())-1, t)
+		b.cols[done].list.InsertItem(-1, t)
 	}
 }
 
