@@ -155,9 +155,9 @@ func (f Form) Update(msg tea.Msg) (tea.Model, tea.Cmd) { // Changed to pointer r
 				return board.Update(f)
 			}
 			f.nextInput()
-		case key.Matches(msg, keys.Up):
+		case key.Matches(msg, keys.Up) && msg.String() != "k":
 			f.prevInput()
-		case key.Matches(msg, keys.Down):
+		case key.Matches(msg, keys.Down) && msg.String() != "j":
 			f.nextInput()
 		case key.Matches(msg, keys.Back):
 			// if the back key is pressed, return to the board
