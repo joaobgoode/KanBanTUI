@@ -75,7 +75,7 @@ func (p *projectList) LoadProjects() {
 		panic(err)
 	}
 	for _, pi := range projects {
-		p.list.InsertItem(len(p.list.Items())-1, pi)
+		p.list.InsertItem(-1, pi)
 	}
 	p.list.Title = "Projects"
 }

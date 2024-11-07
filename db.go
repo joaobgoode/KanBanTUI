@@ -59,7 +59,7 @@ func taskByStatus(status status) (TaskList, error) {
 		context.Background(),
 		`SELECT id, title, description, project, status, urgency, date, IFNULL(long, '') FROM tasks
         WHERE status=? AND project=?
-        ORDER BY urgency ASC, title DESC;`, value, project,
+        ORDER BY urgency ASC, date ASC;`, value, project,
 	)
 	if err != nil {
 		return nil, err
@@ -113,9 +113,10 @@ func getProjects() ([]projectItem, error) {
 	rows, err := db.QueryContext(
 		context.Background(),
 		`
-	SELECT project, COUNT(*) AS project_count
+	SELECT project, COUNT(*) AS task_count
 	FROM tasks
-	GROUP BY project;
+	GROUP BY project
+        ORDER BY task_count ASC;
 	`,
 	)
 	if err != nil {
