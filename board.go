@@ -9,9 +9,9 @@ import (
 
 type Board struct {
 	help      help.Model
-	loaded    bool
-	focused   status
 	cols      []column
+	focused   status
+	loaded    bool
 	quitting  bool
 	filtering bool
 }

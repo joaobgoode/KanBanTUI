@@ -10,11 +10,11 @@ import (
 const APPEND = -1
 
 type column struct {
-	focus     bool
-	status    status
 	list      list.Model
+	status    status
 	height    int
 	width     int
+	focus     bool
 	filtering bool
 }
 
@@ -64,7 +64,7 @@ func (c column) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	// Capture Window Size, resize the column and the project list accordingly
 	case tea.WindowSizeMsg:
-		c.setSize(msg.Width, msg.Height)
+		c.setSize(msg.Width)
 		projects.SetSize(msg.Width, msg.Height)
 		c.list.SetSize(msg.Width/margin, msg.Height-8)
 		// Capture Key
@@ -76,14 +76,15 @@ func (c column) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// Handles editting task
 				if len(c.list.VisibleItems()) != 0 {
 					task := c.list.SelectedItem().(Task)
-					f := NewForm(task.title, task.description, true)
+					f := NewForm()
+					f.Fill(&task)
 					f.index = c.list.Index()
 					f.col = c
 					return f.Update(nil)
 				}
 			case key.Matches(msg, keys.New):
 				// Handles new task
-				f := newDefaultForm()
+				f := NewForm()
 				f.index = APPEND
 				f.col = c
 				return f.Update(nil)
@@ -170,7 +171,7 @@ func (c *column) Set(i int, t Task) tea.Cmd {
 	return c.list.InsertItem(APPEND, t)
 }
 
-func (c *column) setSize(width, height int) {
+func (c *column) setSize(width int) {
 	c.width = width / margin
 }
 

@@ -1,16 +1,24 @@
 package main
 
 import (
+	"fmt"
 	"strings"
 )
 
 type Task struct {
 	title       string
+	date        string
 	description string
-	status      status
+	longdesc    string
 	project     string
+	status      status
 	id          int
 	urgency     int
+}
+
+func (t *Task) getDate() string {
+	parts := strings.Split(t.date, "/")
+	return fmt.Sprintf("%s/%s/%s", parts[2], parts[1], parts[0])
 }
 
 func NewTask(status status, title, description string) Task {
@@ -32,7 +40,7 @@ func (t Task) Title() string {
 }
 
 func (t Task) Description() string {
-	return t.description
+	return t.getDate() + "  " + t.description
 }
 
 type TaskList []Task

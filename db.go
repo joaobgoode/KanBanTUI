@@ -24,7 +24,9 @@ func initDatabase(dbPath string) error {
 			description TEXT, 
       project TEXT NOT NULL,
 			status REAL NOT NULL,
-        urgency INTEGER
+        urgency INTEGER,
+        date TEXT NOT NULL,
+        long TEXT
 		)`,
 	)
 	if err != nil {
@@ -37,7 +39,7 @@ func addTask(t *Task) {
 	s := int(t.status)
 	res, err := db.ExecContext(
 		context.Background(),
-		`INSERT INTO tasks (title, description, project, status, urgency) VALUES (?,?,?,?, ?);`, t.title, t.description, project, s, t.urgency,
+		`INSERT INTO tasks (title, description, project, status, urgency, date, long) VALUES (?,?,?,?,?,?,?);`, t.title, t.description, project, s, t.urgency, t.date, t.longdesc,
 	)
 	if err != nil {
 		panic(err)
@@ -55,7 +57,7 @@ func taskByStatus(status status) (TaskList, error) {
 	value := int(status)
 	rows, err := db.QueryContext(
 		context.Background(),
-		`SELECT * FROM tasks
+		`SELECT id, title, description, project, status, urgency, date, IFNULL(long, '') FROM tasks
         WHERE status=? AND project=?
         ORDER BY urgency ASC, title DESC;`, value, project,
 	)
@@ -67,7 +69,7 @@ func taskByStatus(status status) (TaskList, error) {
 	for rows.Next() {
 		var t Task
 		var s int
-		err := rows.Scan(&t.id, &t.title, &t.description, &t.project, &s, &t.urgency)
+		err := rows.Scan(&t.id, &t.title, &t.description, &t.project, &s, &t.urgency, &t.date, &t.longdesc)
 		if err != nil {
 			return nil, err
 		}
@@ -100,7 +102,7 @@ func deleteTask(t *Task) {
 func editTask(t *Task, old *Task) {
 	_, err := db.ExecContext(
 		context.Background(),
-		`UPDATE tasks SET title=?, description=? WHERE id=?;`, t.title, t.description, old.id,
+		`UPDATE tasks SET title=?, description=?, date=?, long=? WHERE id=?;`, t.title, t.description, t.date, t.longdesc, old.id,
 	)
 	if err != nil {
 		panic(err)
