@@ -29,7 +29,6 @@ type projectList struct {
 	list      list.Model
 	height    int
 	width     int
-	loaded    bool
 	filtering bool
 }
 

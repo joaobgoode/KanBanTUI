@@ -13,16 +13,10 @@ import (
 type status int
 
 func FromInt(i int) status {
-	switch i {
-	case 0:
-		return todo
-	case 1:
-		return inProgress
-	case 2:
-		return done
-	default:
+	if i >= 3 && i < 0 {
 		panic("invalid status")
 	}
+	return status(i)
 }
 
 func (s status) getNext() status {
