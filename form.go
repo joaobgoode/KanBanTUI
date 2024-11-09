@@ -34,7 +34,7 @@ func titleValidador(s string) error {
 
 func dateValidador(s string) error {
 	if len(s) == 0 {
-		return fmt.Errorf("Date is required")
+		return nil
 	}
 	if len(s) != 10 {
 		return fmt.Errorf("Date must be in format DD/MM/YYYY")

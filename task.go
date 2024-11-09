@@ -17,6 +17,9 @@ type Task struct {
 }
 
 func (t *Task) getDate() string {
+	if t.date == "" {
+		return ""
+	}
 	parts := strings.Split(t.date, "/")
 	return fmt.Sprintf("%s/%s/%s", parts[2], parts[1], parts[0])
 }
