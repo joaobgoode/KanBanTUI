@@ -34,7 +34,7 @@ type projectList struct {
 
 func (p *projectList) SetSize(width, height int) {
 	p.width = width / margin
-	p.height = height - 2*margin
+	p.height = height - 3*margin
 	p.list.SetSize(p.width, p.height)
 }
 
@@ -53,7 +53,8 @@ func (p *projectList) getStyle() lipgloss.Style {
 }
 
 func (p *projectList) View() string {
-	return p.getStyle().Render(p.list.View())
+	return p.getStyle().Render(p.list.View()) +
+		cheatsheetStyle.Render("↑/↓ or j/k: move up and down\nn: new project\ne: edit project\n/: filter\nesc: quit\nq/ctrl+c: back\nenter: select project")
 }
 
 func NewProjectList() *projectList {
@@ -61,6 +62,7 @@ func NewProjectList() *projectList {
 	delegate.Styles.SelectedTitle = lipgloss.NewStyle().Foreground(lipgloss.Color("#17fc03"))
 	delegate.Styles.SelectedDesc = lipgloss.NewStyle().Foreground(lipgloss.Color("2"))
 	emptyList := list.New([]list.Item{}, delegate, 0, 0)
+	emptyList.SetShowHelp(false)
 	return &projectList{list: emptyList, filtering: false}
 }
 

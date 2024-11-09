@@ -66,7 +66,7 @@ func (c column) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		c.setSize(msg.Width)
 		projects.SetSize(msg.Width, msg.Height)
-		c.list.SetSize(msg.Width/margin, msg.Height-8)
+		c.list.SetSize(msg.Width/margin, msg.Height-margin)
 		// Capture Key
 	case tea.KeyMsg:
 		if !c.filtering {

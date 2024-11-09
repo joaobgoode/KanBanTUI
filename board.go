@@ -8,7 +8,6 @@ import (
 )
 
 type Board struct {
-	help      help.Model
 	cols      []column
 	focused   status
 	loaded    bool
@@ -19,7 +18,7 @@ type Board struct {
 func NewBoard() *Board {
 	help := help.New()
 	help.ShowAll = true
-	return &Board{help: help, focused: todo}
+	return &Board{focused: todo}
 }
 
 func (m *Board) Init() tea.Cmd {
@@ -31,7 +30,6 @@ func (m *Board) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		var cmd tea.Cmd
 		var cmds []tea.Cmd
-		m.help.Width = msg.Width
 		for i := 0; i < len(m.cols); i++ {
 			var res tea.Model
 			res, cmd = m.cols[i].Update(msg)
@@ -81,6 +79,10 @@ func (m *Board) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
+var cheatsheetStyle = lipgloss.NewStyle().
+	Padding(1, 2).
+	Foreground(lipgloss.Color("#767676"))
+
 // Changing to pointer receiver to get back to this model after adding a new task via the form... Otherwise I would need to pass this model along to the form and it becomes highly coupled to the other models.
 func (m *Board) View() string {
 	// clears the screen before rendering
@@ -96,6 +98,25 @@ func (m *Board) View() string {
 		m.cols[todo].View(),
 		m.cols[inProgress].View(),
 		m.cols[done].View(),
+		cheatsheetStyle.Render(
+			"Movement:\n"+
+				"←/→: switch columns\n"+
+				"↑/↓ or j/k: move up and down\n"+
+				"\nTasks:\n"+
+				"enter: move task forward\n"+
+				"b: move task backward\n"+
+				"1: move task to To Do\n"+
+				"2: move task to In Progress\n"+
+				"3: move task to Done\n"+
+				"n: new task\n"+
+				"e: edit task\n"+
+				"del: delete task\n"+
+				"\nFilter:\n"+
+				"enter: leave with filter on\n"+
+				"esc: leave with filter off\n"+
+				"\nProjects:\n"+
+				"p: see projects",
+		),
 	)
-	return lipgloss.JoinVertical(lipgloss.Left, board, m.help.View(keys))
+	return lipgloss.JoinVertical(lipgloss.Left, board)
 }
