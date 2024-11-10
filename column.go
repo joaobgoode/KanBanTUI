@@ -64,9 +64,9 @@ func (c column) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	// Capture Window Size, resize the column and the project list accordingly
 	case tea.WindowSizeMsg:
-		c.setSize(msg.Width)
+		c.setSize(msg.Width/margin, msg.Height-2*margin)
 		projects.SetSize(msg.Width, msg.Height)
-		c.list.SetSize(msg.Width/margin, msg.Height-margin)
+		c.list.SetSize(msg.Width/margin, msg.Height-2*margin)
 		// Capture Key
 	case tea.KeyMsg:
 		if !c.filtering {
@@ -171,8 +171,9 @@ func (c *column) Set(i int, t Task) tea.Cmd {
 	return c.list.InsertItem(APPEND, t)
 }
 
-func (c *column) setSize(width int) {
-	c.width = width / margin
+func (c *column) setSize(width, height int) {
+	c.width = width
+	c.height = height
 }
 
 func (c *column) getStyle() lipgloss.Style {

@@ -17,10 +17,6 @@ type projectForm struct {
 	editting bool
 }
 
-func newDefaultProjectForm() *projectForm {
-	return NewProjectForm("project name", false)
-}
-
 func NewProjectForm(title string, edit bool) *projectForm {
 	form := projectForm{
 		help:     help.New(),
@@ -58,12 +54,10 @@ func (f projectForm) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return projects.Update(nil)
 		case key.Matches(msg, keys.Enter):
 			if !f.editting && f.ValidTitle() {
-				f.valid = true
 				project = f.title.Value()
 				board.resetLists()
 				return board.Update(nil)
 			} else if f.editting && f.ValidEdit() {
-				f.valid = true
 				changeProject(f.title.Placeholder, f.title.Value())
 				board.resetLists()
 				projects.ResetProjects()

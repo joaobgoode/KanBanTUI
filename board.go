@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/charmbracelet/bubbles/help"
 	"github.com/charmbracelet/bubbles/key"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -16,8 +15,6 @@ type Board struct {
 }
 
 func NewBoard() *Board {
-	help := help.New()
-	help.ShowAll = true
 	return &Board{focused: todo}
 }
 
@@ -108,6 +105,7 @@ func (m *Board) View() string {
 				"1: move task to To Do\n"+
 				"2: move task to In Progress\n"+
 				"3: move task to Done\n"+
+				"+/-: add/remove urgency\n"+
 				"n: new task\n"+
 				"e: edit task\n"+
 				"del: delete task\n"+
