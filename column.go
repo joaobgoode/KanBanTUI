@@ -30,29 +30,38 @@ func (c *column) Focused() bool {
 	return c.focus
 }
 
+func (c *column) GetDelegate() list.DefaultDelegate {
+	delegate := list.NewDefaultDelegate()
+	if c.Focused() {
+		delegate.Styles.SelectedTitle = lipgloss.NewStyle().
+			Border(lipgloss.NormalBorder(), false, false, false, true).
+			BorderForeground(lipgloss.AdaptiveColor{Light: "#00ffd7", Dark: "#00ffff"}).
+			Foreground(lipgloss.AdaptiveColor{Light: "#00ffd7", Dark: "#00ffff"}).
+			Padding(0, 0, 0, 1)
+		delegate.Styles.SelectedDesc = lipgloss.NewStyle().
+			Border(lipgloss.NormalBorder(), false, false, false, true).
+			BorderForeground(lipgloss.AdaptiveColor{Light: "#00ffd7", Dark: "#00ffff"}).
+			Foreground(lipgloss.AdaptiveColor{Light: "#00ffd7", Dark: "#5fafd7"}).
+			Padding(0, 0, 0, 1)
+		return delegate
+	}
+	delegate.Styles.SelectedTitle = delegate.Styles.NormalTitle
+	delegate.Styles.SelectedDesc = delegate.Styles.NormalDesc
+	return delegate
+}
+
 func newColumn(status status) column {
 	var focus bool
 	if status == todo {
 		focus = true
 	}
-	delegate := list.NewDefaultDelegate()
-	delegate.Styles.SelectedTitle = lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder(), false, false, false, true).
-		BorderForeground(lipgloss.AdaptiveColor{Light: "#00ffd7", Dark: "#00ffff"}).
-		Foreground(lipgloss.AdaptiveColor{Light: "#00ffd7", Dark: "#00ffff"}).
-		Padding(0, 0, 0, 1)
-	delegate.Styles.SelectedDesc = lipgloss.NewStyle().
-		Border(lipgloss.NormalBorder(), false, false, false, true).
-		BorderForeground(lipgloss.AdaptiveColor{Light: "#00ffd7", Dark: "#00ffff"}).
-		Foreground(lipgloss.AdaptiveColor{Light: "#00ffd7", Dark: "#5fafd7"}).
-		Padding(0, 0, 0, 1)
-
+	col := column{status: status, focus: focus}
+	delegate := col.GetDelegate()
 	defaultList := list.New([]list.Item{}, delegate, 0, 0)
 	defaultList.SetShowHelp(false)
-	return column{focus: focus, status: status, list: defaultList}
+	return column{list: defaultList, status: status, focus: focus}
 }
 
-// Init does initial setup for the column.
 func (c column) Init() tea.Cmd {
 	return nil
 }
@@ -127,6 +136,8 @@ func (c column) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (c column) View() string {
+	del := c.GetDelegate()
+	c.list.SetDelegate(del)
 	return c.getStyle().Render(c.list.View())
 }
 
